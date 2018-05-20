@@ -37,7 +37,7 @@ class Crypt
 
 end
 
-  def marketCap
+  def marketcap
     url = self.hp
       charset = nil
 
@@ -64,7 +64,7 @@ end
         volume = doc.xpath('/html/body/div[6]/div/div[1]/div[5]/div[1]/div[2]/div[2]/span[1]/span[1]').text
   end
 
-  def usdjpy
+  def usd_jpy
     #ドル円レートを取得
     #yahooドル円レートのURL
     url= "https://stocks.finance.yahoo.co.jp/stocks/detail/?code=USDJPY=X"
@@ -82,41 +82,41 @@ end
   end
 
   def jpy
-    cryptjpy = self.price.to_f*self.usdjpy.to_i
+    crypt_jpy = self.price.to_f*self.usd_jpy.to_i
   end
 
-  def jpyCap
-    capNum = self.marketCap.delete("^0-9")
-    cryptjpyCap = capNum.to_i*self.usdjpy.to_i
+  def jpy_cap
+    cap_num = self.marketcap.delete("^0-9")
+    crypt_jpy_cap = cap_num.to_i*self.usd_jpy.to_i
 
     #桁数に応じてまとめる
-    if cryptjpyCap > 1000000000000 then
-      cryptjpyCap /= 1000000000000
-      msg = "#{self.name}の市場規模は約#{cryptjpyCap.round}兆円です"
-    elsif cryptjpyCap > 100000000
-      cryptjpyCap /= 100000000
-      msg =  "#{self.name}の市場規模は約#{cryptjpyCap.round}億円です"
-    else cryptjpyCap > 10000
-      cryptjpyCap /= 10000
-      msg =  "#{self.name}の市場規模は約#{cryptjpyCap.round}万円です"
+    if crypt_jpy_cap > 1000000000000 then
+      crypt_jpy_cap /= 1000000000000
+      msg = "#{self.name}の市場規模は約#{crypt_jpy_cap.round}兆円です"
+    elsif crypt_jpy_cap > 100000000
+      crypt_jpy_cap /= 100000000
+      msg =  "#{self.name}の市場規模は約#{crypt_jpy_cap.round}億円です"
+    else crypt_jpy_cap > 10000
+      crypt_jpy_cap /= 10000
+      msg =  "#{self.name}の市場規模は約#{crypt_jpy_cap.round}万円です"
     end
 
   end
 
-  def jpyVol
-    volNum = self.volume.delete("^0-9")
-    cryptjpyVol = volNum.to_i*self.usdjpy.to_i
+  def jpy_vol
+    vol_num = self.volume.delete("^0-9")
+    crypt_jpy_vol = vol_num.to_i*self.usd_jpy.to_i
 
     #桁数に応じてまとめる
-    if  cryptjpyVol > 1000000000000 then
-      cryptjpyVol /= 1000000000000
-      msg =  "#{self.name}の24時間取引量は約#{ cryptjpyVol.round}兆円です"
-    elsif  cryptjpyVol > 100000000
-      cryptjpyVol /= 100000000
-      msg =  "#{self.name}の24時間取引量は約#{ cryptjpyVol.round}億円です"
-    else  cryptjpyVol > 10000
-      cryptjpyVol /= 10000
-      msg  "#{self.name}の24時間取引量は約#{ cryptjpyVol.round}万円です"
+    if  crypt_jpy_vol > 1000000000000 then
+      crypt_jpy_vol /= 1000000000000
+      msg =  "#{self.name}の24時間取引量は約#{ crypt_jpy_vol.round}兆円です"
+    elsif  crypt_jpy_vol > 100000000
+      crypt_jpy_vol /= 100000000
+      msg =  "#{self.name}の24時間取引量は約#{ crypt_jpy_vol.round}億円です"
+    else  crypt_jpy_vol > 10000
+      crypt_jpy_vol /= 10000
+      msg  = "#{self.name}の24時間取引量は約#{ crypt_jpy_vol.round}万円です"
     end
   end
 end
@@ -139,6 +139,9 @@ class Bot
     when  /XRP|xrp|R(ipple|IPPLE)|ripple|リップル/ then
         crypt1 = Crypt.new(name: "Ripple", symbol: "XRP",
                                      hp: "https://coinmarketcap.com/currencies/ripple/")
+    when  /BCH|bch|B(itcoin ?cash|ITCOIN ?CASH)|bitcoin ?cash|Bitcoin ?Cash|ビットコイン　?キャッシュ/ then
+            crypt1 = Crypt.new(name: "Bitcoin Cash", symbol: "BCH",
+                                         hp: "https://coinmarketcap.com/currencies/bitcoin-cash/")
     else
       #処理を飛ばす用
       flag = 0
@@ -150,14 +153,14 @@ class Bot
       when  /[0-9]/ then
         #data.textを数値と小数点のみに加工
         possession = data.text.delete("^0-9,.")
-        possessionJpy = possession.to_f * crypt1.jpy
-        client.say(text: "#{possession}#{crypt1.symbol}は#{possessionJpy}円です", channel: data.channel)
+        possession_jpy = possession.to_f * crypt1.jpy
+        client.say(text: "#{possession}#{crypt1.symbol}は#{possession_jpy}円です", channel: data.channel)
       when  /いくら|幾ら|値段|価格|(P|p)rice/ then
         client.say(text: "1#{crypt1.symbol}は#{crypt1.jpy}円です", channel: data.channel)
       when   /時価総額|市場価(値|格)|(M|m)arket ?(C|c)ap|CAP|(C|c)ap/ then
-        client.say(text: crypt1.jpyCap, channel: data.channel)
+        client.say(text: crypt1.jpy_cap, channel: data.channel)
       when  /取引量|(V|v)olume|vol|VOL/ then
-        client.say(text: crypt1.jpyVol, channel: data.channel)
+        client.say(text: crypt1.jpy_vol, channel: data.channel)
       else
         client.say(text: '聞きたい内容を入力してください。例：値段/時価総額/取引量', channel: data.channel)
       end
@@ -167,7 +170,7 @@ class Bot
 end
 
 server = SlackRubyBot::Server.new(
-  token: 'your token',
+  token: 'xoxb-365463347536-367782963287-LkDdlpFUJ0jHSkf5JEcRMXQx',
   hook_handlers: {
     message: Bot.new
   }
