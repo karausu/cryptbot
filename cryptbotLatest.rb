@@ -167,7 +167,7 @@ class Bot
 end
 
 server = SlackRubyBot::Server.new(
-  token: 'xoxb-365463347536-367782963287-LkDdlpFUJ0jHSkf5JEcRMXQx',
+  token: 'your token',
   hook_handlers: {
     message: Bot.new
   }
